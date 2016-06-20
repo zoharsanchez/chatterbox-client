@@ -1,18 +1,35 @@
+/*
+
+MESSAGE OBJECT LAYOUT
+createdAt
+objectId
+roomname
+text
+updatedAt
+username
+
+*/
+
 // YOUR CODE HERE:
 var app = {
   message: {
     username: 'Zohandrew',
-    text: 'Testing'
-    // roomname: '4chan'
+    text: 'Testing',
+    roomname: '4chan',
+    // createdAt: ,
+    // objectId: ,
+    // updatedAt:
   },
-  server: 'https://api.parse.com/1/classes/messages'
+  server: 'https://api.parse.com/1/classes/messages',
+  messageLog: []
 };
 
-app.init = function() {};
+app.init = function() {
+  this.fetch();
+};
 
 app.send = function(message) {
   $.ajax({
-    // This is the url you should use to communicate with the parse API server.
     url: this.server,
     type: 'POST',
     data: JSON.stringify(message),
@@ -21,25 +38,37 @@ app.send = function(message) {
       console.log('chatterbox: Message sent', message);
     },
     error: function (data) {
-      // See: https://developer.mozilla.org/en-US/docs/Web/API/console.error
       console.error('chatterbox: Failed to send message', data);
     }
   });
 };
 
 app.fetch = function() {
-  return $.ajax({
-    // This is the url you should use to communicate with the parse API server.
+  var data = $.ajax({
     url: this.server,
     type: 'GET',
-    data: JSON.stringify(message),
+    data: data, // JSON.stringify(message),
     contentType: 'application/json',
     success: function (data) {
       console.log('chatterbox: Message received', data);
+      _.each(data.results, function(chatObj) {
+        $('#chats').append(app.createMessage(chatObj));
+      });
+      app.messageLog = data;
     },
     error: function (data) {
-      // See: https://developer.mozilla.org/en-US/docs/Web/API/console.error
       console.error('chatterbox: Failed to receive message', data);
     }
   });
+  // this.messageLog = data;
+  // return data;
+  app.createMessage = function(chatObj) {
+    return '<div class="chat"><div class="username">' + chatObj.username + '</div>' + chatObj.text + '</div>';
+  };
 };
+
+
+
+
+
+
