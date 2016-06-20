@@ -60,13 +60,31 @@ app.fetch = function() {
       console.error('chatterbox: Failed to receive message', data);
     }
   });
-  // this.messageLog = data;
-  // return data;
+
+  app.clearMessages = function() {
+    $('#chats').children().remove();
+    this.messageLog = [];
+  };
+
+  app.addMessage = function(asdf) {};
+  app.addRoom = function(asdf) {};
+
+
   app.createMessage = function(chatObj) {
     return '<div class="chat"><div class="username">' + chatObj.username + '</div>' + chatObj.text + '</div>';
   };
+
 };
 
+$('document').ready(function() {
+
+  app.init();
+
+  // Clear Message button handler
+  $('.clear').on('click', function() {
+    app.clearMessages();
+  });
+});
 
 
 
