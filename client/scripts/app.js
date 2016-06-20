@@ -66,7 +66,10 @@ app.fetch = function() {
     this.messageLog = [];
   };
 
-  app.addMessage = function(asdf) {};
+  app.addMessage = function(chatObj) {
+    app.send(chatObj);
+    $('#chats').append(app.createMessage(chatObj));
+  };
   app.addRoom = function(asdf) {};
 
 
@@ -83,6 +86,16 @@ $('document').ready(function() {
   // Clear Message button handler
   $('.clear').on('click', function() {
     app.clearMessages();
+  });
+
+  $('.post').on('click', function() {
+    event.preventDefault();
+    app.message.username = $('.username').val();
+    app.message.text = $('.message').val();
+    app.addMessage(app.message);
+    $('.username').val('');
+    $('.message').val('');
+    app.fetch();
   });
 });
 
