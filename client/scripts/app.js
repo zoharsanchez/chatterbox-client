@@ -51,6 +51,7 @@ app.fetch = function() {
     contentType: 'application/json',
     success: function (data) {
       console.log('chatterbox: Message received', data);
+      app.clearMessages();
       app.populateChat(data.results);
     },
     error: function (data) {
@@ -74,7 +75,12 @@ app.fetch = function() {
 
 
   app.createMessage = function(chatObj) {
-    return $('<div class="chat ' + chatObj.objectId + '"><div class="username">' + chatObj.username + '</div>' + chatObj.text + '</div>');
+    var tempMsg = $('<div class="chat"></div>');
+    tempMsg.text(chatObj.text);
+    var tempUsr = $('<div class="username"></div>');
+    tempUsr.text(chatObj.username);
+    tempMsg.prepend(tempUsr);
+    return tempMsg;
   };
 
   app.populateChat = function(chatList) {
@@ -91,9 +97,10 @@ app.fetch = function() {
     var $newMsg = app.createMessage(chatObj);
     // appends it to the page
     $('#chats').prepend($newMsg);
-    // hides it, then slides down for a cool effect
-    $newMsg.hide();
-    $newMsg.slideDown('slow');
+  };
+
+  app.refresh = function() {
+    app.fetch();
   };
 
 };
@@ -115,7 +122,7 @@ $('document').ready(function() {
     $('.username').val('');
     $('.message').val('');
   });
-  setInterval(app.fetch, 5000);
+  setInterval(app.refresh, 5000);
 });
 
 
