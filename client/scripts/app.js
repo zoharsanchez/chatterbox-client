@@ -51,10 +51,7 @@ app.fetch = function() {
     contentType: 'application/json',
     success: function (data) {
       console.log('chatterbox: Message received', data);
-      _.each(data.results, function(chatObj) {
-        $('#chats').append(app.createMessage(chatObj));
-      });
-      app.messageLog = data;
+      app.populateChat(data.results);
     },
     error: function (data) {
       console.error('chatterbox: Failed to receive message', data);
@@ -77,14 +74,21 @@ app.fetch = function() {
 
 
   app.createMessage = function(chatObj) {
-    return $('<div class="chat"><div class="username">' + chatObj.username + '</div>' + chatObj.text + '</div>');
+    return $('<div class="chat ' + chatObj.objectId + '"><div class="username">' + chatObj.username + '</div>' + chatObj.text + '</div>');
+  };
+
+  app.populateChat = function(chatList) {
+    // _.each(chatList, app.showMessage);
+    for (var i = chatList.length - 1; i >= 0; i--) {
+      app.showMessage(chatList[i]);
+    }
+    app.messageLog = data;
   };
 
   app.showMessage = function(chatObj) {
     // Takes in message
     // gives message data value of objectId
     var $newMsg = app.createMessage(chatObj);
-    $newMsg.data('objectId', chatObj.objectId);
     // appends it to the page
     $('#chats').prepend($newMsg);
     // hides it, then slides down for a cool effect
