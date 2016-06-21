@@ -68,13 +68,28 @@ app.fetch = function() {
 
   app.addMessage = function(chatObj) {
     app.send(chatObj);
-    $('#chats').append(app.createMessage(chatObj));
+    app.showMessage(chatObj);
   };
-  app.addRoom = function(asdf) {};
+
+  app.addRoom = function(roomName) {
+    return $('#roomSelect').append('<option value="' + roomName + '">' + roomName + '</option>');
+  };
 
 
   app.createMessage = function(chatObj) {
-    return '<div class="chat"><div class="username">' + chatObj.username + '</div>' + chatObj.text + '</div>';
+    return $('<div class="chat"><div class="username">' + chatObj.username + '</div>' + chatObj.text + '</div>');
+  };
+
+  app.showMessage = function(chatObj) {
+    // Takes in message
+    // gives message data value of objectId
+    var $newMsg = app.createMessage(chatObj);
+    $newMsg.data('objectId', chatObj.objectId);
+    // appends it to the page
+    $('#chats').prepend($newMsg);
+    // hides it, then slides down for a cool effect
+    $newMsg.hide();
+    $newMsg.slideDown('slow');
   };
 
 };
@@ -95,8 +110,8 @@ $('document').ready(function() {
     app.addMessage(app.message);
     $('.username').val('');
     $('.message').val('');
-    app.fetch();
   });
+  setInterval(app.fetch, 5000);
 });
 
 
