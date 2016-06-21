@@ -120,6 +120,14 @@ app.fetch = function() {
       roomFlag = false;
     });
   };
+
+  app.handleSubmit = function(e) {
+    app.message.username = $('.username').val();
+    app.message.text = $('.message').val();
+    app.addMessage(app.message);
+    $('.username').val('');
+    $('.message').val('');
+  };
 };
 
 $('document').ready(function() {
@@ -127,11 +135,20 @@ $('document').ready(function() {
   app.init();
 
   // Clear Message button handler
-  $('.clear').on('click', function() {
+  $('.clear').on('click', function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    e.stopImmediatePropagation();
+    app.handleSubmit(e);
     app.clearMessages();
+    return false;
   });
 
-  $('#roomSelect').change(function() {
+  $('#roomSelect').change(function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    e.stopImmediatePropagation();
+    app.handleSubmit(e);
     var temp;
     if ($('#roomSelect').val() === 'Main') {
       currRoom = undefined;
@@ -150,15 +167,15 @@ $('document').ready(function() {
       $('.chat').show();
     }
     app.message.roomname = currRoom;
+    return false;
   });
 
-  $('.post').on('click', function() {
-    event.preventDefault();
-    app.message.username = $('.username').val();
-    app.message.text = $('.message').val();
-    app.addMessage(app.message);
-    $('.username').val('');
-    $('.message').val('');
+  $('.submit').on('submit', function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    e.stopImmediatePropagation();
+    app.handleSubmit(e);
+    return false;
   });
   setInterval(app.refresh, 5000);
 });
