@@ -1,21 +1,12 @@
-/*
-
-MESSAGE OBJECT LAYOUT
-createdAt
-objectId
-roomname
-text
-updatedAt
-username
-
-*/
+var rooms = [];
+var currRoom;
 
 // YOUR CODE HERE:
 var app = {
   message: {
     username: 'Zohandrew',
     text: 'Testing',
-    roomname: '4chan',
+    roomname: ''
     // createdAt: ,
     // objectId: ,
     // updatedAt:
@@ -53,6 +44,7 @@ app.fetch = function() {
       console.log('chatterbox: Message received', data);
       app.clearMessages();
       app.populateChat(data.results);
+      app.populateRooms(data.results);
     },
     error: function (data) {
       console.error('chatterbox: Failed to receive message', data);
@@ -69,11 +61,6 @@ app.fetch = function() {
     app.showMessage(chatObj);
   };
 
-  app.addRoom = function(roomName) {
-    return $('#roomSelect').append('<option value="' + roomName + '">' + roomName + '</option>');
-  };
-
-
   app.createMessage = function(chatObj) {
     var tempMsg = $('<div class="chat"></div>');
     tempMsg.text(chatObj.text);
@@ -84,10 +71,7 @@ app.fetch = function() {
   };
 
   app.populateChat = function(chatList) {
-    // _.each(chatList, app.showMessage);
-    for (var i = chatList.length - 1; i >= 0; i--) {
-      app.showMessage(chatList[i]);
-    }
+    _.each(chatList, app.showMessage);
     app.messageLog = data;
   };
 
@@ -95,14 +79,47 @@ app.fetch = function() {
     // Takes in message
     // gives message data value of objectId
     var $newMsg = app.createMessage(chatObj);
+    $newMsg.data('room', chatObj.roomname);
+    $newMsg.hide();
     // appends it to the page
-    $('#chats').prepend($newMsg);
+    $('#chats').append($newMsg);
+    if (currRoom === undefined || $newMsg.data('room') === currRoom) {
+      $newMsg.show();
+    }
   };
 
   app.refresh = function() {
     app.fetch();
   };
+  
+  app.addRoom = function(roomName) {
+    var tempRoom = $('<option value="' + roomName + '"></option>');
+    tempRoom.text(roomName);
+    $('#roomSelect').append(tempRoom);
+  };
 
+  app.populateRooms = function(chatList) {
+    var roomFlag = false;
+    rooms = ['Main'];
+    _.each(chatList, function(chatObj) {
+      if (chatObj.roomname !== undefined && chatObj.roomname !== '') {
+        rooms.push(chatObj.roomname);
+      }
+    });
+    rooms = _.uniq(rooms);
+    rooms = _.sortBy(rooms, function(room) { return room; });
+    _.each(rooms, function(roomName) {
+      _.each($('#roomSelect').children(), function(option) {
+        if ($(option).val() === roomName) {
+          roomFlag = true;
+        }
+      });
+      if (!roomFlag) {
+        app.addRoom(roomName);
+      }
+      roomFlag = false;
+    });
+  };
 };
 
 $('document').ready(function() {
@@ -112,6 +129,27 @@ $('document').ready(function() {
   // Clear Message button handler
   $('.clear').on('click', function() {
     app.clearMessages();
+  });
+
+  $('#roomSelect').change(function() {
+    var temp;
+    if ($('#roomSelect').val() === 'Main') {
+      currRoom = undefined;
+    } else {
+      currRoom = $('#roomSelect').val();
+    }
+    if (currRoom) {
+      $('.chat').hide();
+      for (var i = 0; i < $('.chat').length; i++) {
+        temp = $($('.chat')[i]);
+        if (temp.data('room') === currRoom) {
+          temp.show();
+        }
+      }
+    } else {
+      $('.chat').show();
+    }
+    app.message.roomname = currRoom;
   });
 
   $('.post').on('click', function() {
