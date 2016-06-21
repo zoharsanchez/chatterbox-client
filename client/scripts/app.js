@@ -1,5 +1,6 @@
 var rooms = [];
 var currRoom;
+var friends = [];
 
 // YOUR CODE HERE:
 var app = {
@@ -66,6 +67,9 @@ app.fetch = function() {
     tempMsg.text(chatObj.text);
     var tempUsr = $('<div class="username"></div>');
     tempUsr.text(chatObj.username);
+    if (_.indexOf(friends, chatObj.username) > -1) {
+      tempUsr.addClass('friend');
+    }
     tempMsg.prepend(tempUsr);
     return tempMsg;
   };
@@ -122,11 +126,22 @@ app.fetch = function() {
   };
 
   app.handleSubmit = function(e) {
-    app.message.username = $('.username').val();
+    app.message.username = window.location.search.slice(10, window.location.search.length); // $('.username').val() ||
     app.message.text = $('.message').val();
     app.addMessage(app.message);
     $('.username').val('');
     $('.message').val('');
+  };
+
+  app.addFriend = function(e) {
+    // console.log(e);
+    e.addClass('friend');
+    friends.push(e.text());
+  };
+
+  app.removeFriend = function(e, index) {
+    e.removeClass('friend');
+    friends.splice(index, 1);
   };
 };
 
@@ -139,7 +154,6 @@ $('document').ready(function() {
     e.preventDefault();
     e.stopPropagation();
     e.stopImmediatePropagation();
-    app.handleSubmit(e);
     app.clearMessages();
     return false;
   });
@@ -170,13 +184,25 @@ $('document').ready(function() {
     return false;
   });
 
-  $('.submit').on('submit', function(e) {
+  $('.submit').on('click', function(e) {
     e.preventDefault();
     e.stopPropagation();
     e.stopImmediatePropagation();
     app.handleSubmit(e);
     return false;
   });
+
+  $('#chats').on('click', '.username', function(e) {
+    e.preventDefault;
+    var friendIndex = _.indexOf(friends, $(e.target).text());
+    if (friendIndex === -1) {
+      app.addFriend($(e.target));  
+    } else {
+      app.removeFriend($(e.target), friendIndex);
+    }
+    
+  });
+
   setInterval(app.refresh, 5000);
 });
 
