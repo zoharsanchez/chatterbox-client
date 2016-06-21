@@ -1,30 +1,53 @@
 var rooms = [];
-var currRoom;
 var friends = [];
 var handleFlag = false;
 
 var app = {
-  message: {
-    username: 'Zohandrew',
-    text: '',
-    roomname: ''
-  },
+  username: '',
+  roomname: 'Main',
   server: 'https://api.parse.com/1/classes/messages'
 };
 
 app.init = function() {
   this.fetch();
-  rooms = [];
-  currRoom = undefined;
-  friends = [];
+  rooms = {};
+  friends = {};
 
-  $('.submit').on('click', function(e) {
+  app.username = window.location.search.substr(10);
+
+  $('.clear').on('click', function(e) {
     e.preventDefault();
     e.stopPropagation();
     e.stopImmediatePropagation();
-    app.handleSubmit(e);
+    app.clearMessages();
     return false;
   });
+  
+  $('#roomSelect').change(function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    e.stopImmediatePropagation();
+    var temp;
+    if ($('#roomSelect').val() === 'Main') {
+      app.roomname = 'Main';
+    } else {
+      app.roomname = $('#roomSelect').val();
+    }
+    if (app.roomname) {
+      $('.chat').hide();
+      for (var i = 0; i < $('.chat').length; i++) {
+        temp = $($('.chat')[i]);
+        if (temp.data('room') === app.roomname) {
+          temp.show();
+        }
+      }
+    } else {
+      $('.chat').show();
+    }
+    return false;
+  });
+
+  $('#send').on('submit', app.handleSubmit);
 
   $('#chats').on('click', '.username', function(e) {
     e.preventDefault;
@@ -54,7 +77,7 @@ app.fetch = function() {
   var data = $.ajax({
     url: this.server,
     type: 'GET',
-    data: data, // JSON.stringify(message),
+    data: {data: '-createdAt'}, // JSON.stringify(message),
     contentType: 'application/json',
     success: function (data) {
       // console.log('chatterbox: Message received', data);
@@ -101,8 +124,8 @@ app.fetch = function() {
     $newMsg.data('room', chatObj.roomname);
     $newMsg.hide();
     // appends it to the page
-    $('#chats').append($newMsg);
-    if (currRoom === undefined || $newMsg.data('room') === currRoom) {
+    $('#chats').prepend($newMsg);
+    if (app.roomname === 'Main' || $newMsg.data('room') === app.roomname) {
       $newMsg.show();
     }
   };
@@ -118,33 +141,28 @@ app.fetch = function() {
   };
 
   app.populateRooms = function(chatList) {
-    var roomFlag = false;
-    rooms = ['Main'];
+    $('#roomSelect').html('');
+    rooms = {Main: true };
     _.each(chatList, function(chatObj) {
       if (chatObj.roomname !== undefined && chatObj.roomname !== '') {
-        rooms.push(chatObj.roomname);
+        rooms[chatObj.roomname] = true;
       }
     });
-    rooms = _.uniq(rooms);
-    rooms = _.sortBy(rooms, function(room) { return room; });
-    _.each(rooms, function(roomName) {
-      _.each($('#roomSelect').children(), function(option) {
-        if ($(option).val() === roomName) {
-          roomFlag = true;
-        }
-      });
-      if (!roomFlag) {
-        app.addRoom(roomName);
-      }
-      roomFlag = false;
+    _.each(rooms, function(val, roomName) {
+      app.addRoom(roomName);
     });
   };
 
   app.handleSubmit = function(e) {
+    e.preventDefault();
+    e.stopPropagation();
     handleFlag = true;
-    app.message.username = window.location.search.slice(10, window.location.search.length);
-    app.message.text = $('#message').val();
-    app.addMessage(app.message);
+
+    var message = {};
+    message.username = app.username;
+    message.text = $('#message').val();
+    message.roomname = app.roomname || 'Main';
+    app.addMessage(message);
     $('.username').val('');
     $('#message').val('');
   };
@@ -158,41 +176,6 @@ app.fetch = function() {
 $('document').ready(function() {
 
   app.init();
-
-  // Clear Message button handler
-  $('.clear').on('click', function(e) {
-    e.preventDefault();
-    e.stopPropagation();
-    e.stopImmediatePropagation();
-    app.clearMessages();
-    return false;
-  });
-
-  $('#roomSelect').change(function(e) {
-    e.preventDefault();
-    e.stopPropagation();
-    e.stopImmediatePropagation();
-    app.handleSubmit(e);
-    var temp;
-    if ($('#roomSelect').val() === 'Main') {
-      currRoom = undefined;
-    } else {
-      currRoom = $('#roomSelect').val();
-    }
-    if (currRoom) {
-      $('.chat').hide();
-      for (var i = 0; i < $('.chat').length; i++) {
-        temp = $($('.chat')[i]);
-        if (temp.data('room') === currRoom) {
-          temp.show();
-        }
-      }
-    } else {
-      $('.chat').show();
-    }
-    app.message.roomname = currRoom;
-    return false;
-  });
 
   setInterval(app.refresh, 5000);
 });
