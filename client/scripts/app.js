@@ -1,23 +1,38 @@
 var rooms = [];
 var currRoom;
 var friends = [];
+var handleFlag = false;
 
-// YOUR CODE HERE:
 var app = {
   message: {
     username: 'Zohandrew',
-    text: 'Testing',
+    text: '',
     roomname: ''
-    // createdAt: ,
-    // objectId: ,
-    // updatedAt:
   },
-  server: 'https://api.parse.com/1/classes/messages',
-  messageLog: []
+  server: 'https://api.parse.com/1/classes/messages'
 };
 
 app.init = function() {
   this.fetch();
+  rooms = [];
+  currRoom = undefined;
+  friends = [];
+
+  $('.submit').on('click', function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    e.stopImmediatePropagation();
+    app.handleSubmit(e);
+    return false;
+  });
+
+  $('#chats').on('click', '.username', function(e) {
+    e.preventDefault;
+    var friendIndex = _.indexOf(friends, $(e.target).text());
+    if (friendIndex === -1) {
+      app.addFriend($(e.target));  
+    }
+  });
 };
 
 app.send = function(message) {
@@ -42,7 +57,7 @@ app.fetch = function() {
     data: data, // JSON.stringify(message),
     contentType: 'application/json',
     success: function (data) {
-      console.log('chatterbox: Message received', data);
+      // console.log('chatterbox: Message received', data);
       app.clearMessages();
       app.populateChat(data.results);
       app.populateRooms(data.results);
@@ -126,22 +141,17 @@ app.fetch = function() {
   };
 
   app.handleSubmit = function(e) {
-    app.message.username = window.location.search.slice(10, window.location.search.length); // $('.username').val() ||
-    app.message.text = $('.message').val();
+    handleFlag = true;
+    app.message.username = window.location.search.slice(10, window.location.search.length);
+    app.message.text = $('#message').val();
     app.addMessage(app.message);
     $('.username').val('');
-    $('.message').val('');
+    $('#message').val('');
   };
 
   app.addFriend = function(e) {
-    // console.log(e);
     e.addClass('friend');
     friends.push(e.text());
-  };
-
-  app.removeFriend = function(e, index) {
-    e.removeClass('friend');
-    friends.splice(index, 1);
   };
 };
 
@@ -182,25 +192,6 @@ $('document').ready(function() {
     }
     app.message.roomname = currRoom;
     return false;
-  });
-
-  $('.submit').on('click', function(e) {
-    e.preventDefault();
-    e.stopPropagation();
-    e.stopImmediatePropagation();
-    app.handleSubmit(e);
-    return false;
-  });
-
-  $('#chats').on('click', '.username', function(e) {
-    e.preventDefault;
-    var friendIndex = _.indexOf(friends, $(e.target).text());
-    if (friendIndex === -1) {
-      app.addFriend($(e.target));  
-    } else {
-      app.removeFriend($(e.target), friendIndex);
-    }
-    
   });
 
   setInterval(app.refresh, 5000);
