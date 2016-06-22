@@ -1,17 +1,16 @@
 var rooms = [];
-var friends = [];
 var handleFlag = false;
 
 var app = {
   username: '',
   roomname: 'Main',
+  friends: {},
   server: 'https://api.parse.com/1/classes/messages'
 };
 
 app.init = function() {
   this.fetch();
   rooms = {};
-  friends = {};
 
   app.username = window.location.search.substr(10);
 
@@ -51,8 +50,7 @@ app.init = function() {
 
   $('#chats').on('click', '.username', function(e) {
     e.preventDefault;
-    var friendIndex = _.indexOf(friends, $(e.target).text());
-    if (friendIndex === -1) {
+    if (!app.friends[$(e.target).text()]) {
       app.addFriend($(e.target));  
     }
   });
@@ -77,7 +75,7 @@ app.fetch = function() {
   var data = $.ajax({
     url: this.server,
     type: 'GET',
-    data: {data: '-createdAt'}, // JSON.stringify(message),
+    data: {order: '-createdAt'}, // JSON.stringify(message),
     contentType: 'application/json',
     success: function (data) {
       // console.log('chatterbox: Message received', data);
@@ -97,7 +95,6 @@ app.fetch = function() {
 
   app.addMessage = function(chatObj) {
     app.send(chatObj);
-    app.showMessage(chatObj);
   };
 
   app.createMessage = function(chatObj) {
@@ -105,7 +102,7 @@ app.fetch = function() {
     tempMsg.text(chatObj.text);
     var tempUsr = $('<div class="username"></div>');
     tempUsr.text(chatObj.username);
-    if (_.indexOf(friends, chatObj.username) > -1) {
+    if (app.friends[chatObj.username]) {
       tempUsr.addClass('friend');
     }
     tempMsg.prepend(tempUsr);
@@ -124,7 +121,7 @@ app.fetch = function() {
     $newMsg.data('room', chatObj.roomname);
     $newMsg.hide();
     // appends it to the page
-    $('#chats').prepend($newMsg);
+    $('#chats').append($newMsg);
     if (app.roomname === 'Main' || $newMsg.data('room') === app.roomname) {
       $newMsg.show();
     }
@@ -135,9 +132,8 @@ app.fetch = function() {
   };
   
   app.addRoom = function(roomName) {
-    var tempRoom = $('<option value="' + roomName + '"></option>');
-    tempRoom.text(roomName);
-    $('#roomSelect').append(tempRoom);
+    $('#roomSelect').append($('<option value="' + roomName + '"></option>').text(roomName));
+    rooms[roomName] = true;
   };
 
   app.populateRooms = function(chatList) {
@@ -169,7 +165,7 @@ app.fetch = function() {
 
   app.addFriend = function(e) {
     e.addClass('friend');
-    friends.push(e.text());
+    app.friends[e.text()] = true;
   };
 };
 
