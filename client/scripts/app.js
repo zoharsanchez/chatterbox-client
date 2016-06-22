@@ -1,7 +1,6 @@
-var rooms = [];
-var handleFlag = false;
+let rooms = {};
 
-var app = {
+const app = {
   username: '',
   roomname: 'Main',
   friends: {},
@@ -9,12 +8,11 @@ var app = {
 };
 
 app.init = function() {
-  this.fetch();
-  rooms = {};
+  app.fetch();
 
   app.username = window.location.search.substr(10);
 
-  $('.clear').on('click', function(e) {
+  $('.clear').on('click', e => {
     e.preventDefault();
     e.stopPropagation();
     e.stopImmediatePropagation();
@@ -26,7 +24,7 @@ app.init = function() {
     e.preventDefault();
     e.stopPropagation();
     e.stopImmediatePropagation();
-    var temp;
+    let temp;
     if ($('#roomSelect').val() === 'Main') {
       app.roomname = 'Main';
     } else {
@@ -34,7 +32,7 @@ app.init = function() {
     }
     if (app.roomname) {
       $('.chat').hide();
-      for (var i = 0; i < $('.chat').length; i++) {
+      for (let i = 0; i < $('.chat').length; i++) {
         temp = $($('.chat')[i]);
         if (temp.data('room') === app.roomname) {
           temp.show();
@@ -98,9 +96,9 @@ app.fetch = function() {
   };
 
   app.createMessage = function(chatObj) {
-    var tempMsg = $('<div class="chat"></div>');
+    const tempMsg = $('<div class="chat"></div>');
     tempMsg.text(chatObj.text);
-    var tempUsr = $('<div class="username"></div>');
+    const tempUsr = $('<div class="username"></div>');
     tempUsr.text(chatObj.username);
     if (app.friends[chatObj.username]) {
       tempUsr.addClass('friend');
@@ -133,7 +131,7 @@ app.fetch = function() {
   };
   
   app.addRoom = function(roomName) {
-    $('#roomSelect').append($('<option value="' + roomName + '"></option>').text(roomName));
+    $('#roomSelect').append($(`<option value="${roomName}"></option>`).text(roomName));
     rooms[roomName] = true;
   };
 
