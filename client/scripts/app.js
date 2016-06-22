@@ -104,6 +104,7 @@ app.fetch = function() {
     tempUsr.text(chatObj.username);
     if (app.friends[chatObj.username]) {
       tempUsr.addClass('friend');
+      tempMsg.addClass('bolded');
     }
     tempMsg.prepend(tempUsr);
     return tempMsg;
@@ -165,6 +166,7 @@ app.fetch = function() {
 
   app.addFriend = function(e) {
     e.addClass('friend');
+    e.closest('.chat').addClass('bolded');
     app.friends[e.text()] = true;
   };
 };

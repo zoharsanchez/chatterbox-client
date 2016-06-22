@@ -88,7 +88,9 @@ form input[type=text] {
     background-color: #0090da;
 }
 
-.friend
+.bolded {
+    font-weight: bold;
+}
 
 .button {
     display: inline-block;
